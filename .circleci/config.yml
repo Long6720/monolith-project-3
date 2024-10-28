@@ -1,58 +1,44 @@
-# This config was automatically generated from your source code
-# Stacks detected: deps:node:udagram-frontend
 version: 2.1
-orbs:
-  node: circleci/node@5
+
 jobs:
-  test-node:
-    # Install node dependencies and run tests
-    executor: node/default
-    working_directory: ~/project/udagram-frontend
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          name: Run tests
-          command: npm test --passWithNoTests
-  build-node:
-    # Build node project
-    executor: node/default
-    working_directory: ~/project/udagram-frontend
-    steps:
-      - checkout:
-          path: ~/project
-      - node/install-packages:
-          pkg-manager: npm
-      - run:
-          command: npm run build
-      - run:
-          name: Create the ~/artifacts directory if it doesn't exist
-          command: mkdir -p ~/artifacts
-      # Copy output to artifacts dir
-      - run:
-          name: Copy artifacts
-          command: cp -R build dist public .output .next .docusaurus ~/artifacts 2>/dev/null || true
-      - store_artifacts:
-          path: ~/artifacts
-          destination: node-build
-  deploy:
-    # This is an example deploy job, not actually used by the workflow
+  lint-app:
     docker:
-      - image: cimg/base:stable
+      - image: circleci/node:16
     steps:
-      # Replace this with steps to deploy to users
+      - checkout
+  build-docker:
+    machine: true
+    steps:
+      - checkout
       - run:
-          name: deploy
-          command: '#e.g. ./deploy.sh'
+          name: Build docker images for microservices
+          command: |
+            curl -fsSl https://deb.nodesource.com/setup_16.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            node -v
+            npm -v
+            docker build -t udagram-api-feed ./udagram-api-feed
+            docker tag udagram-api-feed $DOCKER_REPO/udagram-api-feed:v1
+
+            docker build -t udagram-api-user ./udagram-api-user
+            docker tag udagram-api-user $DOCKER_REPO/udagram-api-user:v1
+
+            docker build -t udagram-frontend ./udagram-frontend
+            docker tag udagram-frontend $DOCKER_REPO/udagram-frontend:v1
+
+            docker build -t udagram-reverseproxy ./udagram-reverseproxy
+            docker tag udagram-reverseproxy $DOCKER_REPO/udagram-reverseproxy:v1
+
+            docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+
+            docker push $DOCKER_REPO/udagram-api-feed:v1
+            docker push $DOCKER_REPO/udagram-api-user:v1
+            docker push $DOCKER_REPO/udagram-frontend:v1
+            docker push $DOCKER_REPO/udagram-reverseproxy:v1
+
 workflows:
-  build-and-test:
+  default:
     jobs:
-      - test-node
-      - build-node:
-          requires:
-            - test-node
-    # - deploy:
-    #     requires:
-    #       - build-node
+      - lint-app
+      - build-docker:
+          requires: [lint-app]
