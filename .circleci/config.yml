@@ -18,23 +18,23 @@ jobs:
             node -v
             npm -v
             docker build -t udagram-api-feed ./udagram-api-feed
-            docker tag udagram-api-feed $USERNAME/udagram-api-feed:v1
+            docker tag udagram-api-feed $DOCKER_REPO/udagram-api-feed:v1
 
             docker build -t udagram-api-user ./udagram-api-user
-            docker tag udagram-api-user $USERNAME/udagram-api-user:v1
+            docker tag udagram-api-user $DOCKER_REPO/udagram-api-user:v1
 
             docker build -t udagram-frontend ./udagram-frontend
-            docker tag udagram-frontend $USERNAME/udagram-frontend:v1
+            docker tag udagram-frontend $DOCKER_REPO/udagram-frontend:v1
 
             docker build -t udagram-reverseproxy ./udagram-reverseproxy
-            docker tag udagram-reverseproxy $USERNAME/udagram-reverseproxy:v1
+            docker tag udagram-reverseproxy $DOCKER_REPO/udagram-reverseproxy:v1
 
             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
-            docker push $USERNAME/udagram-api-feed:v1
-            docker push $USERNAME/udagram-api-user:v1
-            docker push $USERNAME/udagram-frontend:v1
-            docker push $USERNAME/udagram-reverseproxy:v1
+            docker push $DOCKER_REPO/udagram-api-feed:v1
+            docker push $DOCKER_REPO/udagram-api-user:v1
+            docker push $DOCKER_REPO/udagram-frontend:v1
+            docker push $DOCKER_REPO/udagram-reverseproxy:v1
 
 workflows:
   default:
