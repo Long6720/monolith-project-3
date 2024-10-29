@@ -10,6 +10,9 @@ export const sequelize = new Sequelize({
   dialect: config.dialect,
   storage: ":memory:",
   dialectOptions: {
-    ssl: false,
+    ssl: {
+      require: true, // This will help you. But you will see nwe error
+      rejectUnauthorized: false, // This line will fix new error
+    },
   },
 });
