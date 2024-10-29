@@ -15,7 +15,7 @@ spec:
         service: reverseproxy
     spec:
       containers:
-        - image: thanhlong6720/udagram-reverseproxy:v1_1730189310
+        - image: thanhlong6720/udagram-reverseproxy:v1_1730192071
           name: reverseproxy
           imagePullPolicy: Always
           ports:
